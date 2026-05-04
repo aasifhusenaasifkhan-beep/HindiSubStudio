@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Details | Hindi Sub Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
+        <a href="index.html" style="color:white; text-decoration:none; background:#333; padding:5px 15px; border-radius:5px;">Back to Home</a>
+    </header>
+
+    <div id="detailBox" style="color:white; text-align:center; padding: 50px;">Loading Post Details...</div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+
+        async function loadDetail() {
+            try {
+                // Get Post Info from LocalStorage or Fetch (Simpler Fetching all for detail)
+                let resP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPosts" }) });
+                let allPosts = (await resP.json()).data;
+                let post = allPosts.find(p => p.id === postId);
+
+                if(!post) return document.getElementById("detailBox").innerHTML = "Post Not Found";
+
+                let resE = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getEpisodes", postId: postId }) });
+                let episodes = (await resE.json()).data;
+                
+                episodes.sort((a,b) => parseFloat(a.epNum) - parseFloat(b.epNum));
+                let epHtml = "";
+                episodes.forEach(ep => {
+                    epHtml += `<a href="watch.html?epid=${ep.epId}&live=${encodeURIComponent(ep.liveLink)}" class="ep-btn">Episode ${ep.epNum}</a>`;
+                });
+                if(epHtml === "") epHtml = "<p style='color:#aaa;'>No episodes uploaded yet.</p>";
+
+                document.getElementById("detailBox").innerHTML = `
+                    <div class="detail-container">
+                        <img src="${post.image}" class="detail-poster" onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'">
+                        <div style="text-align: left;">
+                            <h1 style="font-size:30px; color:white; margin-bottom:10px;">${post.name}</h1>
+                            <div class="meta-tags">
+                                <span>📁 ${post.category}</span>
+                                <span>🏷️ ${post.genre}</span>
+                            </div>
+                            <p style="color:#aaa; line-height:1.6;">${post.story}</p>
+                            <h3 style="margin: 25px 0 15px; color: var(--primary);">Episodes List</h3>
+                            <div>${epHtml}</div>
+                        </div>
+                    </div>
+                `;
+            } catch(e) { document.getElementById("detailBox").innerHTML = "Error loading details."; }
+        }
+        loadDetail();
+    </script>
+</body>
+</html>
