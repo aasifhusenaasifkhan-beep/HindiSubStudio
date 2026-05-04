@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Sub Studio | Free Anime & Movies</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchPosts()">
+        </div>
+    </header>
+
+    <div class="anime-grid" id="postGrid">
+        <h2 style="color: #e50914; text-align: center; width: 100%;">Fetching Server Data...</h2>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        let allPosts = [];
+
+        async function loadPosts() {
+            try {
+                let res = await fetch(API_URL, {
+                    method: 'POST', headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ action: "getPosts" })
+                });
+                let json = await res.json();
+                allPosts = json.data;
+                displayPosts(allPosts);
+            } catch(e) { document.getElementById("postGrid").innerHTML = "<h3 style='color:white;'>Network Error</h3>"; }
+        }
+
+        function displayPosts(data) {
+            const grid = document.getElementById("postGrid");
+            grid.innerHTML = "";
+            if(data.length === 0) return grid.innerHTML = "<h3 style='color:white;width:100%;text-align:center;'>No Content Found.</h3>";
+            
+            data.forEach(p => {
+                grid.innerHTML += `
+                    <div class="anime-card" onclick="window.location.href='detail.html?id=${p.id}'">
+                        <div class="badge">${p.category}</div>
+                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'">
+                        <div class="anime-info">
+                            <h4>${p.name}</h4>
+                            <span class="genre-tag">${p.genre}</span>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function searchPosts() {
+            let val = document.getElementById("searchInput").value.toLowerCase();
+            displayPosts(allPosts.filter(p => p.name.toLowerCase().includes(val) || p.category.toLowerCase().includes(val)));
+        }
+        loadPosts();
+    </script>
+</body>
+</html>
