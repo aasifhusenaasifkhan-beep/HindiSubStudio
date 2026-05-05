@@ -13,55 +13,79 @@
         <button onclick="history.back()" class="ep-btn" style="background:#333; box-shadow:none;">Go Back</button>
     </header>
 
-    <div class="watch-container">
-        <!-- Live Video Block -->
+    <!-- Global Video Password Lock -->
+    <div id="videoLockOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(10px); z-index:4000; flex-direction:column; justify-content:center; align-items:center;">
+        <h2 style="color:#e50914; margin-bottom:15px;">🔒 Video is Locked!</h2>
+        <input type="text" id="globalPassInput" placeholder="Enter Video Password" style="padding:12px; width:280px; text-align:center; border-radius:8px; border:none; outline:none; margin-bottom:15px; background:#222; color:white;">
+        <button class="btn-action" onclick="checkVideoPassword()" style="width:280px;">Unlock Video</button>
+        <a href="https://t.me/hindisubinganime" target="_blank" style="color:#00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">👉 Get Password from Telegram</a>
+    </div>
+
+    <!-- Main Player -->
+    <div class="watch-container" id="watchBox" style="display:none;">
         <h2 style="margin-bottom:15px; color:#FFD700;">📺 Live Stream</h2>
-        <div class="video-wrapper" id="vidPlayer">
+        <div class="video-wrapper">
             <iframe id="liveFrame" src="" allowfullscreen></iframe>
         </div>
         
         <div style="margin-top: 30px; padding:20px; background:rgba(0,0,0,0.5); border-radius:10px; border:1px dashed #e50914;">
-            <h3 style="color:white; margin-bottom:10px;">📥 Download Episode</h3>
-            
+            <h3 style="color:white; margin-bottom:10px;">📥 Download Options</h3>
             <button class="btn-action" style="background: #0088cc;" id="shortBtn" onclick="generateShortLink(this)">⬇️ Free User (Solve Shortener)</button>
             <br>
-            <button class="btn-action" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; margin-top:10px;" onclick="document.getElementById('premModal').style.display='block'">👑 Premium Users (Direct Fast Link)</button>
+            <button class="btn-action" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; margin-top:10px;" onclick="document.getElementById('premModal').style.display='block'">👑 Premium Direct Download</button>
         </div>
+        <a href="https://t.me/hindisubanime_q" target="_blank" style="display:block; color: #00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">💬 Join Telegram for Updates & Support</a>
     </div>
 
-    <!-- Premium Modal -->
-    <div id="premModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(5px); z-index:3000; text-align:center; padding-top:10%;">
-        <div style="background:var(--glass-bg); width:90%; max-width:400px; margin:auto; padding:30px; border-radius:15px; border: 2px solid #FFD700; box-shadow: 0 0 30px rgba(255,215,0,0.3);">
-            <h2 style="color:#FFD700; margin-bottom:10px;">👑 Premium Access</h2>
-            <p style="font-size: 13px; color: #b3b8c2; margin-bottom:20px;">Download direct without ads.</p>
+    <!-- Premium Modal (Email+Pass) -->
+    <div id="premModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; text-align:center; padding-top:10%;">
+        <div style="background:var(--glass-bg); width:90%; max-width:400px; margin:auto; padding:30px; border-radius:15px; border: 2px solid #FFD700;">
+            <h2 style="color:#FFD700; margin-bottom:10px;">👑 Premium Login</h2>
             <input type="email" id="uEmail" placeholder="Premium Email" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; background:#111; color:white; border:1px solid #444;">
             <input type="password" id="uPass" placeholder="Secret Password" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; background:#111; color:white; border:1px solid #444;">
-            <button id="verifyBtn" onclick="verifyPremium()" style="background:linear-gradient(45deg, #FFD700, #FFA500); color:black; padding:12px; width:100%; border:none; cursor:pointer; font-weight:bold; font-size:16px; border-radius:8px;">Unlock Download Link</button>
-            <button onclick="document.getElementById('premModal').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none; cursor:pointer;">Cancel</button>
+            <button id="verifyBtn" onclick="verifyPremium()" style="background:linear-gradient(45deg, #FFD700, #FFA500); color:black; padding:12px; width:100%; border:none; cursor:pointer; font-weight:bold; border-radius:8px;">Unlock Download Link</button>
+            <button onclick="document.getElementById('premModal').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none;">Cancel</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
         const urlParams = new URLSearchParams(window.location.search);
         const epId = urlParams.get('epid');
-        
-        // Load iframe correctly
-        document.getElementById("liveFrame").src = decodeURIComponent(urlParams.get('live'));
+        let correctVideoPass = "";
+
+        async function initPage() {
+            let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getInitialData" }) });
+            correctVideoPass = (await res.json()).videoPass;
+            
+            if(!correctVideoPass) unlockVideo(); 
+            else if(localStorage.getItem("vidPass") === correctVideoPass) unlockVideo();
+            else document.getElementById("videoLockOverlay").style.display = "flex";
+        }
+
+        function checkVideoPassword() {
+            if(document.getElementById("globalPassInput").value === correctVideoPass) {
+                localStorage.setItem("vidPass", correctVideoPass); unlockVideo();
+            } else alert("❌ Incorrect Password!");
+        }
+
+        function unlockVideo() {
+            document.getElementById("videoLockOverlay").style.display = "none";
+            document.getElementById("watchBox").style.display = "block";
+            document.getElementById("liveFrame").src = decodeURIComponent(urlParams.get('live'));
+        }
 
         async function verifyPremium() {
-            let email = document.getElementById("uEmail").value;
-            let pass = document.getElementById("uPass").value;
+            let email = document.getElementById("uEmail").value, pass = document.getElementById("uPass").value;
             let btn = document.getElementById("verifyBtn");
-            if(!email || !pass) return alert("Please enter Email & Password!");
-            
-            btn.innerHTML = "Verifying Security...";
+            if(!email || !pass) return alert("Enter Details!");
+            btn.innerHTML = "Verifying...";
             try {
                 let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "verifyPremium", email: email, password: pass, epId: epId }) });
                 let json = await res.json();
                 if(json.status === "error") alert(json.message);
-                else { alert("✅ Verification Success! Redirecting to Download..."); window.location.href = json.dlLink; }
-            } catch(e) { alert("Server Error"); }
+                else { alert("✅ Success!"); window.location.href = json.dlLink; }
+            } catch(e) {}
             btn.innerHTML = "Unlock Download Link";
         }
 
@@ -72,9 +96,10 @@
                 let json = await res.json();
                 if(json.status === "error") alert(json.message);
                 else window.open(json.shortLink, "_blank");
-            } catch(e) { alert("Ad Network Error."); }
+            } catch(e) {}
             btn.innerHTML = "⬇️ Free User (Solve Shortener)";
         }
+        initPage();
     </script>
 </body>
 </html>
