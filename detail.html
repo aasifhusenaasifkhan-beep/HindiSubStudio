@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Episodes | Hindi Sub Studio</title>
+    <title>Details | Hindi Sub Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="stars"></div>
     <header>
         <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
-        <a href="index.html" class="ep-btn" style="background:#333; box-shadow:none;">Home</a>
+        <a href="index.html" style="color:white; text-decoration:none; background:#333; padding:5px 15px; border-radius:5px;">Back</a>
     </header>
 
     <div id="detailBox" style="padding: 50px; color: white; text-align: center;">Fetching Data...</div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzkSDeNISJyEJJRJH54mLPGYCKyC4CrsJMnyYFBuLGiQflPD-LgvzOX_kUgBd9h8B4/exec";
         const postId = new URLSearchParams(window.location.search).get('id');
 
         async function loadDetail() {
@@ -34,15 +34,20 @@
                 });
 
                 document.getElementById("detailBox").innerHTML = `
-                    <div class="detail-container" style="display:flex; flex-wrap:wrap; gap:30px; justify-content:center;">
+                    <div class="detail-container">
                         <img src="${post.image}" class="detail-poster">
-                        <div style="flex:1; text-align:left; min-width:300px;">
-                            <h1 style="font-size:35px; color:#fff; text-shadow: 2px 2px 5px red;">${post.name}</h1>
-                            <p style="color:#00d2ff; font-weight:bold; margin-bottom:15px;">[ ${post.category} ] | Genre: ${post.genre}</p>
-                            <p style="color:#b3b8c2; line-height:1.6; font-size:14px; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px;">${post.story}</p>
-                            <h3 style="margin: 20px 0 10px; color: #ff4500;">Select Episode</h3>
-                            <div style="max-height: 200px; overflow-y: auto;">${epHtml}</div>
+                        
+                        <div class="detail-info">
+                            <h1>${post.name}</h1>
+                            <p><span>Genre:</span> ${post.genre}</p>
+                            <p><span>Release Date:</span> ${post.releaseDate || "N/A"}</p>
+                            <div class="story-box">
+                                <p><span>Story:</span><br>${post.story}</p>
+                            </div>
                         </div>
+
+                        <h3 style="color: #ff4500; margin-bottom: 15px;">Watch Episodes</h3>
+                        <div class="ep-list">${epHtml}</div>
                     </div>`;
             } catch(e) { document.getElementById("detailBox").innerHTML = "Error loading."; }
         }
