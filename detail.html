@@ -2,57 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Post Details | Hindi Sub Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="Hindi Sub studio, Anime Hindi sub, Anime Hindi dub, Donghua Hindi sub">
+    <title>Episodes | Hindi Sub Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="stars"></div>
     <header>
         <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
-        <a href="index.html" style="color:white; text-decoration:none; background:#333; padding:5px 15px; border-radius:5px;">Back to Home</a>
+        <a href="index.html" class="ep-btn" style="background:#333; box-shadow:none;">Home</a>
     </header>
 
-    <div id="detailBox" style="color:white; text-align:center; padding: 50px;">Loading Post Details...</div>
+    <div id="detailBox" style="padding: 50px; color: white; text-align: center;">Fetching Data...</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
-        const urlParams = new URLSearchParams(window.location.search);
-        const postId = urlParams.get('id');
+        const postId = new URLSearchParams(window.location.search).get('id');
 
         async function loadDetail() {
             try {
-                // Get Post Info from LocalStorage or Fetch (Simpler Fetching all for detail)
                 let resP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPosts" }) });
-                let allPosts = (await resP.json()).data;
-                let post = allPosts.find(p => p.id === postId);
-
-                if(!post) return document.getElementById("detailBox").innerHTML = "Post Not Found";
+                let post = (await resP.json()).data.find(p => p.id === postId);
+                if(!post) return document.getElementById("detailBox").innerHTML = "Data Not Found";
 
                 let resE = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getEpisodes", postId: postId }) });
-                let episodes = (await resE.json()).data;
+                let episodes = (await resE.json()).data.sort((a,b) => parseFloat(a.epNum) - parseFloat(b.epNum));
                 
-                episodes.sort((a,b) => parseFloat(a.epNum) - parseFloat(b.epNum));
-                let epHtml = "";
+                let epHtml = episodes.length ? "" : "<p style='color:red;'>No episodes available right now.</p>";
                 episodes.forEach(ep => {
                     epHtml += `<a href="watch.html?epid=${ep.epId}&live=${encodeURIComponent(ep.liveLink)}" class="ep-btn">Episode ${ep.epNum}</a>`;
                 });
-                if(epHtml === "") epHtml = "<p style='color:#aaa;'>No episodes uploaded yet.</p>";
 
                 document.getElementById("detailBox").innerHTML = `
-                    <div class="detail-container">
-                        <img src="${post.image}" class="detail-poster" onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'">
-                        <div style="text-align: left;">
-                            <h1 style="font-size:30px; color:white; margin-bottom:10px;">${post.name}</h1>
-                            <div class="meta-tags">
-                                <span>📁 ${post.category}</span>
-                                <span>🏷️ ${post.genre}</span>
-                            </div>
-                            <p style="color:#aaa; line-height:1.6;">${post.story}</p>
-                            <h3 style="margin: 25px 0 15px; color: var(--primary);">Episodes List</h3>
-                            <div>${epHtml}</div>
+                    <div class="detail-container" style="display:flex; flex-wrap:wrap; gap:30px; justify-content:center;">
+                        <img src="${post.image}" class="detail-poster" style="width:250px; border-radius:10px; border:2px solid #e50914;">
+                        <div style="flex:1; text-align:left; min-width:300px;">
+                            <h1 style="font-size:35px; color:#fff; text-shadow: 2px 2px 5px red;">${post.name}</h1>
+                            <p style="color:#00d2ff; font-weight:bold; margin-bottom:15px;">[ ${post.category} ] | Genre: ${post.genre}</p>
+                            <p style="color:#b3b8c2; line-height:1.6; font-size:14px; background:rgba(0,0,0,0.5); padding:15px; border-radius:8px;">${post.story}</p>
+                            <h3 style="margin: 20px 0 10px; color: #ff4500;">Select Episode</h3>
+                            <div style="max-height: 200px; overflow-y: auto;">${epHtml}</div>
                         </div>
-                    </div>
-                `;
-            } catch(e) { document.getElementById("detailBox").innerHTML = "Error loading details."; }
+                    </div>`;
+            } catch(e) { document.getElementById("detailBox").innerHTML = "Error loading."; }
         }
         loadDetail();
     </script>
