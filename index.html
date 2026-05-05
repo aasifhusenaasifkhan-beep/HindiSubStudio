@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Watch Hindi Subbed Anime, Donghua, K-Drama, Movies for free.">
-    <meta name="keywords" content="Hindi Sub studio, Anime Hindi sub, Anime Hindi dub, Donghua Hindi sub, K drama, Movies, Series, Streaming">
-    <title>Hindi Sub Studio | Home of Anime & K-Drama</title>
+    <title>Hindi Sub Studio | Home</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,11 +11,11 @@
     <header>
         <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search Anime, Movies..." onkeyup="searchPosts()">
+            <input type="text" id="searchInput" placeholder="Search Anime..." onkeyup="searchPosts()">
             <div class="dropdown">
                 <button onclick="document.getElementById('dotMenu').classList.toggle('show')" class="dropbtn">⋮</button>
                 <div id="dotMenu" class="dropdown-content">
-                    <a href="javascript:void(0)" onclick="document.getElementById('azModal').style.display='block'">🔤 A-Z / 0-9 Directory</a>
+                    <a href="javascript:void(0)" onclick="document.getElementById('azModal').style.display='flex'">🔤 A-Z Directory</a>
                     <a href="https://t.me/hindisubanime_q" target="_blank">💬 Join Telegram Group</a>
                     <a href="https://t.me/hindisubinganime" target="_blank">📢 Official Channel</a>
                 </div>
@@ -25,30 +23,28 @@
         </div>
     </header>
 
-    <div id="azModal">
-        <div class="az-modal-content">
-            <span class="close-modal" onclick="document.getElementById('azModal').style.display='none'">&times;</span>
+    <div id="azModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px;">
             <h3 style="color:#e50914; margin-bottom:15px;">A-Z Directory</h3>
             <div id="azButtonsBox"></div>
+            <button class="btn-action" style="margin-top:20px;" onclick="document.getElementById('azModal').style.display='none'">Close</button>
         </div>
     </div>
 
     <div class="anime-grid" id="postGrid">
-        <h2 style="color: #e50914; text-align: center; width: 100%;">🚀 Loading Universe...</h2>
+        <h2 style="color: #e50914; text-align: center; width: 100%;">Loading Universe...</h2>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzkSDeNISJyEJJRJH54mLPGYCKyC4CrsJMnyYFBuLGiQflPD-LgvzOX_kUgBd9h8B4/exec";
         let allPosts = [];
 
-        window.onclick = function(e) {
-            if (!e.target.matches('.dropbtn')) document.querySelectorAll(".dropdown-content.show").forEach(d => d.classList.remove('show'));
-        }
+        window.onclick = function(e) { if (!e.target.matches('.dropbtn')) document.querySelectorAll(".dropdown-content.show").forEach(d => d.classList.remove('show')); }
 
         const azDiv = document.getElementById("azButtonsBox");
-        azDiv.innerHTML += `<button class="az-btn" onclick="filterAZ('ALL')">All</button>`;
+        azDiv.innerHTML += `<button class="btn-action" style="display:inline-block; width:auto; padding:5px 10px;" onclick="filterAZ('ALL')">All</button>`;
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(l => {
-            azDiv.innerHTML += `<button class="az-btn" onclick="filterAZ('${l}')">${l}</button>`;
+            azDiv.innerHTML += `<button class="btn-action" style="display:inline-block; width:auto; padding:5px 10px;" onclick="filterAZ('${l}')">${l}</button>`;
         });
 
         window.filterAZ = (letter) => {
@@ -68,16 +64,20 @@
         function displayPosts(data) {
             const grid = document.getElementById("postGrid");
             grid.innerHTML = "";
-            if(data.length === 0) return grid.innerHTML = "<h3 style='color:white;width:100%;text-align:center;'>No Anime Found 😢</h3>";
+            if(data.length === 0) return grid.innerHTML = "<h3 style='color:white;width:100%;text-align:center;'>No Data Found</h3>";
             data.forEach(p => {
                 grid.innerHTML += `
                     <div class="anime-card" onclick="window.location.href='detail.html?id=${p.id}'">
                         <div class="badge">${p.category}</div>
-                        <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200x300?text=No+Image'">
-                        <div class="anime-info"><h4>${p.name}</h4><span class="genre-tag">${p.genre}</span></div>
+                        <img src="${p.image}">
+                        <div class="anime-info">
+                            <h4>${p.name}</h4>
+                            <div class="genre-tag">Genre: ${p.genre}</div>
+                        </div>
                     </div>`;
             });
         }
+
         function searchPosts() {
             let val = document.getElementById("searchInput").value.toLowerCase();
             displayPosts(allPosts.filter(p => p.name.toLowerCase().includes(val) || p.category.toLowerCase().includes(val) || p.genre.toLowerCase().includes(val)));
