@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="Hindi Sub studio, Anime Hindi sub, Anime Hindi dub, Donghua Hindi sub">
     <title>Episodes | Hindi Sub Studio</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -17,26 +16,26 @@
     <div id="detailBox" style="padding: 50px; color: white; text-align: center;">Fetching Data...</div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
         const postId = new URLSearchParams(window.location.search).get('id');
 
         async function loadDetail() {
             try {
-                let resP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPosts" }) });
-                let post = (await resP.json()).data.find(p => p.id === postId);
+                let resP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getInitialData" }) });
+                let post = (await resP.json()).posts.find(p => p.id === postId);
                 if(!post) return document.getElementById("detailBox").innerHTML = "Data Not Found";
 
                 let resE = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getEpisodes", postId: postId }) });
                 let episodes = (await resE.json()).data.sort((a,b) => parseFloat(a.epNum) - parseFloat(b.epNum));
                 
-                let epHtml = episodes.length ? "" : "<p style='color:red;'>No episodes available right now.</p>";
+                let epHtml = episodes.length ? "" : "<p style='color:red;'>No episodes available.</p>";
                 episodes.forEach(ep => {
                     epHtml += `<a href="watch.html?epid=${ep.epId}&live=${encodeURIComponent(ep.liveLink)}" class="ep-btn">Episode ${ep.epNum}</a>`;
                 });
 
                 document.getElementById("detailBox").innerHTML = `
                     <div class="detail-container" style="display:flex; flex-wrap:wrap; gap:30px; justify-content:center;">
-                        <img src="${post.image}" class="detail-poster" style="width:250px; border-radius:10px; border:2px solid #e50914;">
+                        <img src="${post.image}" class="detail-poster">
                         <div style="flex:1; text-align:left; min-width:300px;">
                             <h1 style="font-size:35px; color:#fff; text-shadow: 2px 2px 5px red;">${post.name}</h1>
                             <p style="color:#00d2ff; font-weight:bold; margin-bottom:15px;">[ ${post.category} ] | Genre: ${post.genre}</p>
