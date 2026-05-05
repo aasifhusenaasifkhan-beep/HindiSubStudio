@@ -10,46 +10,48 @@
     <div class="stars"></div>
     <header>
         <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
-        <button onclick="history.back()" class="ep-btn" style="background:#333; box-shadow:none;">Go Back</button>
+        <button onclick="history.back()" style="background:#333; color:white; padding:5px 15px; border:none; border-radius:5px; cursor:pointer;">Back</button>
     </header>
 
     <!-- Global Video Password Lock -->
-    <div id="videoLockOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); backdrop-filter:blur(10px); z-index:4000; flex-direction:column; justify-content:center; align-items:center;">
-        <h2 style="color:#e50914; margin-bottom:15px;">🔒 Video is Locked!</h2>
-        <input type="text" id="globalPassInput" placeholder="Enter Video Password" style="padding:12px; width:280px; text-align:center; border-radius:8px; border:none; outline:none; margin-bottom:15px; background:#222; color:white;">
-        <button class="btn-action" onclick="checkVideoPassword()" style="width:280px;">Unlock Video</button>
-        <a href="https://t.me/hindisubinganime" target="_blank" style="color:#00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">👉 Get Password from Telegram</a>
+    <div id="videoLockOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="color:#e50914; margin-bottom:15px;">🔒 Video Locked</h2>
+            <p style="font-size:12px; color:gray; margin-bottom:15px;">Join Telegram to get the free password.</p>
+            <input type="text" id="globalPassInput" placeholder="Enter Video Password">
+            <button class="btn-action" onclick="checkVideoPassword()">Unlock Video</button>
+            <a href="https://t.me/hindisubinganime" target="_blank" style="display:block; color:#00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">👉 Click Here for Password</a>
+        </div>
     </div>
 
-    <!-- Main Player -->
+    <!-- Main Player Box -->
     <div class="watch-container" id="watchBox" style="display:none;">
-        <h2 style="margin-bottom:15px; color:#FFD700;">📺 Live Stream</h2>
+        <h2 style="margin-bottom:15px; color:#FFD700; text-align:left;">📺 Live Stream</h2>
         <div class="video-wrapper">
-            <iframe id="liveFrame" src="" allowfullscreen></iframe>
+            <iframe id="liveFrame" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
         </div>
         
-        <div style="margin-top: 30px; padding:20px; background:rgba(0,0,0,0.5); border-radius:10px; border:1px dashed #e50914;">
-            <h3 style="color:white; margin-bottom:10px;">📥 Download Options</h3>
-            <button class="btn-action" style="background: #0088cc;" id="shortBtn" onclick="generateShortLink(this)">⬇️ Free User (Solve Shortener)</button>
-            <br>
-            <button class="btn-action" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; margin-top:10px;" onclick="document.getElementById('premModal').style.display='block'">👑 Premium Direct Download</button>
+        <div style="margin-top: 30px; padding:20px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px dashed #e50914;">
+            <h3 style="color:white; margin-bottom:15px;">📥 Download Episode</h3>
+            <button class="btn-action" style="background: #0088cc; border:none;" id="shortBtn" onclick="generateShortLink(this)">⬇️ Free User (Solve Shortener)</button>
+            <button class="btn-action" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: black; border:none;" onclick="document.getElementById('premModal').style.display='flex'">👑 Premium User (Direct Link)</button>
         </div>
-        <a href="https://t.me/hindisubanime_q" target="_blank" style="display:block; color: #00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">💬 Join Telegram for Updates & Support</a>
+        <a href="https://t.me/hindisubanime_q" target="_blank" style="display:block; color: #00d2ff; text-decoration:none; margin-top:20px; font-weight:bold;">💬 Join Support Group</a>
     </div>
 
-    <!-- Premium Modal (Email+Pass) -->
-    <div id="premModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; text-align:center; padding-top:10%;">
-        <div style="background:var(--glass-bg); width:90%; max-width:400px; margin:auto; padding:30px; border-radius:15px; border: 2px solid #FFD700;">
-            <h2 style="color:#FFD700; margin-bottom:10px;">👑 Premium Login</h2>
-            <input type="email" id="uEmail" placeholder="Premium Email" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; background:#111; color:white; border:1px solid #444;">
-            <input type="password" id="uPass" placeholder="Secret Password" style="width:100%; padding:12px; margin-bottom:20px; border-radius:8px; background:#111; color:white; border:1px solid #444;">
-            <button id="verifyBtn" onclick="verifyPremium()" style="background:linear-gradient(45deg, #FFD700, #FFA500); color:black; padding:12px; width:100%; border:none; cursor:pointer; font-weight:bold; border-radius:8px;">Unlock Download Link</button>
-            <button onclick="document.getElementById('premModal').style.display='none'" style="background:transparent; color:#aaa; margin-top:15px; border:none;">Cancel</button>
+    <!-- Premium Modal -->
+    <div id="premModal" class="modal-overlay">
+        <div class="modal-box" style="border-color:#FFD700;">
+            <h2 style="color:#FFD700; margin-bottom:15px;">👑 Premium Access</h2>
+            <input type="email" id="uEmail" placeholder="Your Email">
+            <input type="password" id="uPass" placeholder="Your Password">
+            <button id="verifyBtn" class="btn-action" style="background:linear-gradient(45deg, #FFD700, #FFA500); color:black;" onclick="verifyPremium()">Verify & Download</button>
+            <button class="btn-action" style="background:#333; border:none;" onclick="document.getElementById('premModal').style.display='none'">Cancel</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzkSDeNISJyEJJRJH54mLPGYCKyC4CrsJMnyYFBuLGiQflPD-LgvzOX_kUgBd9h8B4/exec";
         const urlParams = new URLSearchParams(window.location.search);
         const epId = urlParams.get('epid');
         let correctVideoPass = "";
@@ -58,8 +60,7 @@
             let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getInitialData" }) });
             correctVideoPass = (await res.json()).videoPass;
             
-            if(!correctVideoPass) unlockVideo(); 
-            else if(localStorage.getItem("vidPass") === correctVideoPass) unlockVideo();
+            if(!correctVideoPass || localStorage.getItem("vidPass") === correctVideoPass) unlockVideo(); 
             else document.getElementById("videoLockOverlay").style.display = "flex";
         }
 
@@ -76,8 +77,7 @@
         }
 
         async function verifyPremium() {
-            let email = document.getElementById("uEmail").value, pass = document.getElementById("uPass").value;
-            let btn = document.getElementById("verifyBtn");
+            let email = document.getElementById("uEmail").value, pass = document.getElementById("uPass").value, btn = document.getElementById("verifyBtn");
             if(!email || !pass) return alert("Enter Details!");
             btn.innerHTML = "Verifying...";
             try {
@@ -86,11 +86,11 @@
                 if(json.status === "error") alert(json.message);
                 else { alert("✅ Success!"); window.location.href = json.dlLink; }
             } catch(e) {}
-            btn.innerHTML = "Unlock Download Link";
+            btn.innerHTML = "Verify & Download";
         }
 
         async function generateShortLink(btn) {
-            btn.innerHTML = "🔄 Generating Secure Link...";
+            btn.innerHTML = "🔄 Generating Link...";
             try {
                 let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getShortLink", epId: epId }) });
                 let json = await res.json();
