@@ -2,85 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - Hindi Sub Studio</title>
+    <title>Admin Panel - Hindi Sub</title>
     <style>
-        body { font-family: sans-serif; background: #111; color: white; padding: 20px; margin: 0; }
-        #adminPanel { max-width: 800px; margin: auto;}
+        body { font-family: Arial; background: #111; color: white; padding: 20px; margin: 0; }
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        #loginScreen input { padding: 12px; margin: 10px 0; width: 280px; text-align: center; background: #222; color: white; border: 1px solid #444; border-radius: 5px;}
+        #loginScreen button { background: #e50914; color: white; padding: 12px; width: 280px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer;}
+        #adminPanel { display: none; max-width: 800px; margin: auto;}
         .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
-        .tab-btn { background: #333; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-right: 5px; border-radius: 5px; font-weight: bold;}
+        .tab-btn { background: #333; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold;}
         .tab-btn.active { background: #e50914; }
-        .panel { display: none; background: #1a1a20; padding: 25px; margin-top: 15px; border-radius: 10px; border: 1px solid #444;}
+        .panel { display: none; background: #1a1a20; padding: 20px; margin-top: 15px; border-radius: 10px; border: 1px solid #444;}
         .panel.active { display: block; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000; color: white; border: 1px solid #333; border-radius: 5px; box-sizing: border-box; outline:none;}
-        input:focus, textarea:focus { border-color: #e50914; }
-        button.action-btn { background: #e50914; color: white; padding: 15px; border: none; cursor: pointer; border-radius: 5px; width: 100%; font-weight: bold; margin-top: 10px; font-size: 16px;}
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; color: white; border: 1px solid #333; border-radius: 5px; box-sizing: border-box;}
+        button.action-btn { background: #e50914; color: white; padding: 15px; border: none; cursor: pointer; border-radius: 5px; width: 100%; font-weight: bold; margin-top: 10px;}
+        .img-box { background: #111; padding: 15px; border-radius: 8px; border: 1px dashed #555; margin-bottom: 10px;}
     </style>
 </head>
 <body>
+    <div id="loginScreen">
+        <h2 style="color: #e50914;">Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Enter Password">
+        <button onclick="loginAdmin()">Login</button>
+    </div>
+
     <div id="adminPanel">
         <div class="header-bar">
-            <h2 style="color:white; margin: 0;">Hindi Sub <span style="color:#e50914;">Admin Server</span></h2>
+            <h2 style="color:white; margin: 0;">Admin <span style="color:#e50914;">Panel</span></h2>
             <a href="index.html" style="color:#00d2ff;">Go to Website</a>
         </div>
         
         <div>
-            <button class="tab-btn active" onclick="switchTab('addPost')">📝 Add Post</button>
-            <button class="tab-btn" onclick="switchTab('addEp')">▶️ Add Episode</button>
-            <button class="tab-btn" onclick="switchTab('premium')">👑 Premium Users</button>
-            <button class="tab-btn" onclick="switchTab('manage')">🗑️ Delete Data</button>
+            <button class="tab-btn active" onclick="switchTab('addPost')">📝 Post</button>
+            <button class="tab-btn" onclick="switchTab('addEp')">▶️ Episode</button>
+            <button class="tab-btn" onclick="switchTab('premium')">👑 Users</button>
+            <button class="tab-btn" onclick="switchTab('manage')">🗑️ Delete</button>
             <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
         </div>
 
         <div id="addPost" class="panel active">
-            <h3 style="color:#e50914;">Upload New Movie/Anime</h3>
+            <h3 style="color:#e50914;">Upload Post</h3>
             <input type="text" id="pId" placeholder="Unique Post ID (e.g. naruto-01)">
-            <input type="text" id="pName" placeholder="Post Name (e.g. Naruto)">
-            <input type="text" id="pCat" placeholder="Category (Hindi Sub, Donghua, Movie)">
-            <input type="text" id="pGenre" placeholder="Genre (Action, Comedy)">
-            <input type="text" id="pImage" placeholder="Image URL">
-            <textarea id="pStory" rows="4" placeholder="Story Summary..."></textarea>
-            <button class="action-btn" onclick="sendReq({action:'adminAddPost', id:v('pId'), name:v('pName'), category:v('pCat'), genre:v('pGenre'), story:v('pStory'), image:v('pImage')})">Publish Post</button>
+            <input type="text" id="pName" placeholder="Post Name">
+            <input type="text" id="pCat" placeholder="Category (Anime, Movie...)">
+            <input type="text" id="pGenre" placeholder="Genre">
+            <div class="img-box">
+                <label style="color:#ffc107;">Upload Image from Mobile:</label><br>
+                <input type="file" id="postImageFile" accept="image/*">
+                <p style="text-align:center; color:#555; margin:5px 0;">-- OR --</p>
+                <input type="text" id="pImage" placeholder="Paste Direct Image URL">
+            </div>
+            <textarea id="pStory" rows="3" placeholder="Story Summary..."></textarea>
+            <button class="action-btn" id="savePostBtn" onclick="addPost()">Publish Post</button>
         </div>
 
         <div id="addEp" class="panel">
             <h3 style="color:#e50914;">Upload Episode</h3>
-            <input type="text" id="eEpId" placeholder="Unique Episode ID (e.g. naruto-ep1)">
-            <input type="text" id="ePostId" placeholder="Post ID (e.g. naruto-01)">
-            <input type="number" id="eNum" placeholder="Episode Number (e.g. 1)">
-            <input type="text" id="eLive" placeholder="Live Iframe / Video Link">
-            <input type="text" id="eDl" placeholder="Secret Download Link (Premium/Shortener only)">
-            <button class="action-btn" onclick="sendReq({action:'adminAddEp', epId:v('eEpId'), postId:v('ePostId'), epNum:v('eNum'), liveLink:v('eLive'), dlLink:v('eDl')})">Publish Episode</button>
+            <input type="text" id="eEpId" placeholder="Episode ID (e.g. naruto-ep1)">
+            <label style="color:#aaa;">Select Post:</label>
+            <select id="epPostSelect"><option>Loading Posts...</option></select>
+            <input type="number" id="eNum" placeholder="Episode Number">
+            <input type="text" id="eLive" placeholder="Live Video Link (Iframe src)">
+            <input type="text" id="eDl" placeholder="Secret Download Link">
+            <button class="action-btn" onclick="sendReq({action:'adminAddEp', epId:v('eEpId'), postId:v('epPostSelect'), epNum:v('eNum'), liveLink:v('eLive'), dlLink:v('eDl')})">Publish Episode</button>
         </div>
 
         <div id="premium" class="panel">
-            <h3 style="color:#e50914;">Premium Access Control</h3>
+            <h3 style="color:#e50914;">Premium Users</h3>
             <input type="email" id="uEmail" placeholder="User's Email">
-            <input type="text" id="uPass" placeholder="Assign Custom Password">
+            <input type="text" id="uPass" placeholder="Create Custom Password">
             <button class="action-btn" style="background:#28a745;" onclick="sendReq({action:'adminAddUser', email:v('uEmail'), password:v('uPass')})">Grant 28 Days Premium</button>
-            <hr style="border-color:#333; margin:20px 0;">
-            <button class="action-btn" style="background:#dc3545;" onclick="if(confirm('Are you sure?')) sendReq({action:'adminBanUser', email:v('uEmail')})">Ban User</button>
+            <button class="action-btn" style="background:#dc3545;" onclick="if(confirm('Ban user?')) sendReq({action:'adminBanUser', email:v('uEmail')})">Ban User</button>
         </div>
 
         <div id="manage" class="panel">
-            <h3 style="color:#e50914;">Delete Content</h3>
-            <input type="text" id="delPId" placeholder="Enter Post ID to Delete (e.g. naruto-01)">
-            <button class="action-btn" style="background:#dc3545;" onclick="if(confirm('Delete Post permanently?')) sendReq({action:'adminDeletePost', id:v('delPId')})">Delete Post</button>
+            <h3 style="color:#e50914;">Delete Post</h3>
+            <input type="text" id="delPId" placeholder="Post ID to Delete">
+            <button class="action-btn" style="background:#dc3545;" onclick="if(confirm('Delete?')) sendReq({action:'adminDeletePost', id:v('delPId')})">Delete Post</button>
         </div>
 
         <div id="settings" class="panel">
-            <h3 style="color:#e50914;">Shortener API Setup (3 Accounts)</h3>
-            <p style="color:gray; font-size:12px;">System will randomly rotate between these APIs.</p>
+            <h3 style="color:#e50914;">Settings</h3>
+            <label style="color:#ffc107;">Global Video Password (For Player Lock):</label>
+            <input type="text" id="vPass" placeholder="e.g. Anime@123 (Leave blank for no lock)">
+            <hr style="border-color:#333; margin:15px 0;">
+            <label style="color:#ffc107;">Shorteners API:</label>
             <div style="display:flex; gap:10px;"><input type="text" id="s1url" placeholder="API 1 URL"><input type="text" id="s1key" placeholder="API 1 KEY"></div>
             <div style="display:flex; gap:10px;"><input type="text" id="s2url" placeholder="API 2 URL"><input type="text" id="s2key" placeholder="API 2 KEY"></div>
             <div style="display:flex; gap:10px;"><input type="text" id="s3url" placeholder="API 3 URL"><input type="text" id="s3key" placeholder="API 3 KEY"></div>
-            <button class="action-btn" onclick="sendReq({action:'adminSaveSettings', s1url:v('s1url'), s1key:v('s1key'), s2url:v('s2url'), s2key:v('s2key'), s3url:v('s3url'), s3key:v('s3key')})">Save All Shorteners</button>
+            <button class="action-btn" onclick="sendReq({action:'adminSaveSettings', s1url:v('s1url'), s1key:v('s1key'), s2url:v('s2url'), s2key:v('s2key'), s3url:v('s3url'), s3key:v('s3key'), videoPass:v('vPass')})">Save Settings</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
         function v(id) { return document.getElementById(id).value; }
         
+        async function loginAdmin() {
+            let pass = document.getElementById("adminPass").value;
+            let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "adminLogin", pass: pass }) });
+            let data = await res.json();
+            if(data.status === "success") {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("adminPanel").style.display = "block";
+                loadPostsForSelect();
+            } else alert("Wrong Password!"); 
+        }
+
         function switchTab(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -88,14 +116,38 @@
             event.target.classList.add('active');
         }
 
-        async function sendReq(payload) {
-            alert("Contacting Server...");
+        async function loadPostsForSelect() {
+            let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getInitialData" }) });
+            let posts = (await res.json()).posts;
+            let html = ""; posts.forEach(p => html += `<option value="${p.id}">${p.name} (${p.id})</option>`);
+            document.getElementById("epPostSelect").innerHTML = html || "<option>No posts found</option>";
+        }
+
+        async function addPost() {
+            let file = document.getElementById("postImageFile").files[0];
+            let urlInput = v("pImage");
+            let btn = document.getElementById("savePostBtn");
+            let finalImgUrl = urlInput;
+
+            if(!file && !urlInput) return alert("Image URL ya Photo upload karein!");
+            btn.innerHTML = "Uploading..."; btn.disabled = true;
+
             try {
-                let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-                let data = await res.json();
-                alert(data.message);
-                document.querySelectorAll('input:not(#s1url):not(#s1key):not(#s2url):not(#s2key):not(#s3url):not(#s3key), textarea').forEach(el => el.value = '');
-            } catch(e) { alert("Server Error!"); }
+                if(file) {
+                    const fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "asi_anime_upload"); 
+                    let r = await fetch("https://api.cloudinary.com/v1_1/dccbzyjtr/image/upload", { method: "POST", body: fd });
+                    finalImgUrl = (await r.json()).secure_url; 
+                }
+                await sendReq({ action: "adminAddPost", id: v('pId'), name: v('pName'), category: v('pCat'), genre: v('pGenre'), story: v('pStory'), image: finalImgUrl });
+            } catch(e) { alert("Upload Failed"); }
+            btn.innerHTML = "Publish Post"; btn.disabled = false;
+        }
+
+        async function sendReq(payload) {
+            alert("Processing...");
+            let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            alert((await res.json()).message);
+            if(payload.action !== 'adminSaveSettings') document.querySelectorAll('input:not(#adminPass):not([type="file"]), textarea').forEach(el => el.value = '');
         }
     </script>
 </body>
