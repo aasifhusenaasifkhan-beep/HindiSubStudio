@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Watch Hindi Subbed Anime, Donghua, K-Drama, and Movies for free.">
-    <meta name="keywords" content="Hindi Sub studio, Anime Hindi sub, Anime Hindi dub, Donghua Hindi sub, K drama, Movies, Series, Free streaming">
+    <meta name="description" content="Watch Hindi Subbed Anime, Donghua, K-Drama, Movies for free.">
+    <meta name="keywords" content="Hindi Sub studio, Anime Hindi sub, Anime Hindi dub, Donghua Hindi sub, K drama, Movies, Series, Streaming">
     <title>Hindi Sub Studio | Home of Anime & K-Drama</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="stars"></div> <!-- Animated Background -->
-    
+    <div class="stars"></div>
     <header>
         <a href="index.html" class="logo">Hindi Sub <span>Studio</span></a>
         <div class="search-box">
@@ -19,33 +17,52 @@
             <div class="dropdown">
                 <button onclick="document.getElementById('dotMenu').classList.toggle('show')" class="dropbtn">⋮</button>
                 <div id="dotMenu" class="dropdown-content">
-                    <a href="https://t.me/hindisubanime_q" target="_blank"><i class="fab fa-telegram"></i> Join Telegram Group</a>
-                    <a href="https://t.me/hindisubinganime" target="_blank"><i class="fas fa-bullhorn"></i> Official Channel</a>
+                    <a href="javascript:void(0)" onclick="document.getElementById('azModal').style.display='block'">🔤 A-Z / 0-9 Directory</a>
+                    <a href="https://t.me/hindisubanime_q" target="_blank">💬 Join Telegram Group</a>
+                    <a href="https://t.me/hindisubinganime" target="_blank">📢 Official Channel</a>
                 </div>
             </div>
         </div>
     </header>
+
+    <div id="azModal">
+        <div class="az-modal-content">
+            <span class="close-modal" onclick="document.getElementById('azModal').style.display='none'">&times;</span>
+            <h3 style="color:#e50914; margin-bottom:15px;">A-Z Directory</h3>
+            <div id="azButtonsBox"></div>
+        </div>
+    </div>
 
     <div class="anime-grid" id="postGrid">
         <h2 style="color: #e50914; text-align: center; width: 100%;">🚀 Loading Universe...</h2>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUCRslJC40DWXNMAPI9Xa_nS0CpNngA8PW2t10hTz4y_WCdO_ZFeu0wzSeJGOIp4BFdA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwV59mrPhTCnB86g4ogn6e5BWdd5R_XkP3BmoZGqR3W1eQoGBCe-4daeL2kLAYZadgb/exec";
         let allPosts = [];
 
         window.onclick = function(e) {
-            if (!e.target.matches('.dropbtn')) {
-                document.querySelectorAll(".dropdown-content.show").forEach(d => d.classList.remove('show'));
-            }
+            if (!e.target.matches('.dropbtn')) document.querySelectorAll(".dropdown-content.show").forEach(d => d.classList.remove('show'));
+        }
+
+        const azDiv = document.getElementById("azButtonsBox");
+        azDiv.innerHTML += `<button class="az-btn" onclick="filterAZ('ALL')">All</button>`;
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(l => {
+            azDiv.innerHTML += `<button class="az-btn" onclick="filterAZ('${l}')">${l}</button>`;
+        });
+
+        window.filterAZ = (letter) => {
+            document.getElementById('azModal').style.display='none';
+            if(letter === 'ALL') return displayPosts(allPosts);
+            displayPosts(allPosts.filter(p => p.name.toUpperCase().startsWith(letter)));
         }
 
         async function loadPosts() {
             try {
-                let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPosts" }) });
-                allPosts = (await res.json()).data;
+                let res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getInitialData" }) });
+                allPosts = (await res.json()).posts;
                 displayPosts(allPosts);
-            } catch(e) { document.getElementById("postGrid").innerHTML = "<h3 style='color:white;text-align:center;'>Network Error. Refresh page.</h3>"; }
+            } catch(e) { document.getElementById("postGrid").innerHTML = "<h3 style='color:white;text-align:center;'>Network Error.</h3>"; }
         }
 
         function displayPosts(data) {
@@ -61,7 +78,6 @@
                     </div>`;
             });
         }
-
         function searchPosts() {
             let val = document.getElementById("searchInput").value.toLowerCase();
             displayPosts(allPosts.filter(p => p.name.toLowerCase().includes(val) || p.category.toLowerCase().includes(val) || p.genre.toLowerCase().includes(val)));
